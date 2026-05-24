@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TOOLZ — Sua empresa no piloto automático</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #060D1A;
+      --navy2: #0B1F3A;
+      --navy3: #0D2545;
+      --cyan: #00D4FF;
+      --cyan2: #06B6D4;
+      --pink: #FF00FF;
+      --pink2: #CC00FF;
+      --blue: #1E40AF;
+      --white: #FFFFFF;
+      --gray: #94A3B8;
+      --card-bg: rgba(11, 31, 58, 0.85);
+      --border-cyan: rgba(0, 212, 255, 0.35);
+      --border-pink: rgba(255, 0, 255, 0.35);
+      --glow-cyan: 0 0 20px rgba(0,212,255,0.6), 0 0 40px rgba(0,212,255,0.3);
+      --glow-pink: 0 0 20px rgba(255,0,255,0.6), 0 0 40px rgba(255,0,255,0.3);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--navy);
+      color: var(--white);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--navy); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan2); border-radius: 3px; }
+
+    /* ===== GRID BACKGROUND ===== */
+    .grid-bg {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none; z-index: 0;
+    }
+    .grid-bg::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 60%;
+      background: linear-gradient(to top, var(--navy) 0%, transparent 100%);
+    }
+
+    /* ===== PARTICLES ===== */
+    #particles-canvas {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 1;
+    }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%;
+      height: 70px;
+      background: rgba(6, 13, 26, 0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-cyan);
+    }
+    .navbar::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--pink), var(--cyan), transparent);
+      animation: scanline 3s linear infinite;
+    }
+    @keyframes scanline {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--cyan), var(--pink));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: var(--glow-cyan);
+      animation: spin-slow 10s linear infinite;
+    }
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .logo span { color: var(--cyan); text-shadow: var(--glow-cyan); }
+    .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .nav-links a {
+      color: var(--gray); text-decoration: none;
+      font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 600;
+      letter-spacing: 0.05em;
+      transition: color 0.3s, text-shadow 0.3s;
+    }
+    .nav-links a:hover { color: var(--cyan); text-shadow: var(--glow-cyan); }
+    .nav-cta {
+      padding: 8px 22px;
+      background: transparent;
+      border: 1.5px solid var(--cyan);
+      color: var(--cyan) !important;
+      border-radius: 4px;
+      font-family: 'Rajdhani', sans-serif !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.1em !important;
+      cursor: pointer;
+      transition: all 0.3s !important;
+    }
+    .nav-cta:hover {
+      background: var(--cyan) !important;
+      color: var(--navy) !important;
+      box-shadow: var(--glow-cyan) !important;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      position: relative; z-index: 10;
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 100px 5% 60px;
+      overflow: hidden;
+    }
+    .hero-bg-glow {
+      position: absolute; top: 20%; left: -10%;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-bg-glow2 {
+      position: absolute; top: 30%; right: -5%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(255,0,255,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-content {
+      flex: 1; max-width: 55%;
+      position: relative; z-index: 2;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px;
+      background: rgba(0,212,255,0.1);
+      border: 1px solid var(--border-cyan);
+      border-radius: 20px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.85rem; font-weight: 600;
+      color: var(--cyan);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 0.6s ease both;
+    }
+    .hero-badge::before {
+      content: '';
+      width: 8px; height: 8px;
+      background: var(--cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--cyan);
+      animation: pulse 1.5s ease infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+    .hero-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.8rem, 5vw, 4.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 0.8s ease 0.2s both;
+    }
+    .hero-title .line1 { color: var(--white); display: block; }
+    .hero-title .line2 {
+      color: var(--cyan);
+      text-shadow: var(--glow-cyan);
+      display: block;
+    }
+    .hero-title .line3 {
+      color: var(--white); display: block;
+      position: relative;
+    }
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: var(--gray);
+      max-width: 520px;
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
+      animation: fadeInUp 0.8s ease 0.4s both;
+    }
+    .hero-subtitle strong { color: var(--white); }
+    .hero-actions {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      animation: fadeInUp 0.8s ease 0.6s both;
+    }
+    .btn-primary {
+      padding: 14px 32px;
+      background: linear-gradient(135deg, var(--cyan), var(--cyan2));
+      color: var(--navy);
+      border: none; border-radius: 6px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: var(--glow-cyan);
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0,212,255,0.8), 0 0 60px rgba(0,212,255,0.4);
+    }
+    .btn-secondary {
+      padding: 14px 32px;
+      background: transparent;
+      color: var(--white);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: 6px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-secondary:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: var(--glow-cyan);
+    }
+    .hero-stats {
+      display: flex; gap: 2.5rem; margin-top: 3rem;
+      animation: fadeInUp 0.8s ease 0.8s both;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat .number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem; font-weight: 700;
+      color: var(--cyan);
+      text-shadow: var(--glow-cyan);
+      display: block;
+    }
+    .hero-stat .label {
+      font-size: 0.78rem;
+      color: var(--gray);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .hero-visual {
+      flex: 1; display: flex; justify-content: flex-end; align-items: center;
+      position: relative; z-index: 2;
+      animation: fadeInRight 1s ease 0.3s both;
+    }
+    .dashboard-wrapper {
+      position: relative;
+      width: 100%; max-width: 580px;
+    }
+    .dashboard-wrapper img {
+      width: 100%;
+      border-radius: 12px;
+      filter: drop-shadow(0 0 30px rgba(0,212,255,0.4)) drop-shadow(0 0 60px rgba(255,0,255,0.2));
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(-1deg); }
+      50% { transform: translateY(-15px) rotate(1deg); }
+    }
+    .dashboard-glow {
+      position: absolute; inset: -20px;
+      background: radial-gradient(ellipse, rgba(0,212,255,0.15) 0%, transparent 70%);
+      pointer-events: none;
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInRight {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ===== SECTION BASE ===== */
+    section { position: relative; z-index: 10; }
+    .section-header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+    .section-tag {
+      display: inline-block;
+      padding: 4px 14px;
+      background: rgba(0,212,255,0.1);
+      border: 1px solid var(--border-cyan);
+      border-radius: 20px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--cyan);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .section-title .highlight {
+      color: var(--cyan);
+      text-shadow: var(--glow-cyan);
+    }
+    .section-desc {
+      color: var(--gray);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ===== METRICS STRIP ===== */
+    .metrics-strip {
+      padding: 50px 5%;
+      background: linear-gradient(135deg, rgba(0,212,255,0.05) 0%, rgba(255,0,255,0.05) 100%);
+      border-top: 1px solid var(--border-cyan);
+      border-bottom: 1px solid var(--border-cyan);
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .metric-card {
+      text-align: center;
+      padding: 1.5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border-cyan);
+      border-radius: 10px;
+      transition: all 0.3s;
+    }
+    .metric-card:hover {
+      border-color: var(--cyan);
+      box-shadow: var(--glow-cyan);
+      transform: translateY(-4px);
+    }
+    .metric-icon {
+      font-size: 2rem; margin-bottom: 0.5rem;
+    }
+    .metric-number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.2rem; font-weight: 700;
+      color: var(--cyan);
+      text-shadow: var(--glow-cyan);
+      display: block;
+    }
+    .metric-label {
+      color: var(--gray);
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== FEATURES ===== */
+    .features { padding: 90px 5%; }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .feature-card {
+      padding: 2rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border-cyan);
+      border-radius: 12px;
+      transition: all 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      transform: scaleX(0);
+      transition: transform 0.4s;
+    }
+    .feature-card:hover::before { transform: scaleX(1); }
+    .feature-card:hover {
+      border-color: var(--cyan);
+      box-shadow: var(--glow-cyan);
+      transform: translateY(-6px);
+    }
+    .feature-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(255,0,255,0.1));
+      border: 1px solid var(--border-cyan);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.2rem;
+    }
+    .feature-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.2rem; font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.7rem;
+      letter-spacing: 0.03em;
+    }
+    .feature-desc {
+      color: var(--gray);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* ===== ANALYTICS SECTION ===== */
+    .analytics { padding: 90px 5%; }
+    .analytics-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
+      align-items: center;
+    }
+    .analytics-charts {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;
+    }
+    .chart-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-cyan);
+      border-radius: 12px;
+      padding: 1.2rem;
+      transition: all 0.3s;
+    }
+    .chart-card:hover {
+      border-color: var(--cyan);
+      box-shadow: var(--glow-cyan);
+    }
+    .chart-card.wide { grid-column: span 2; }
+    .chart-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+    }
+    .chart-canvas-wrap { position: relative; height: 140px; }
+    .chart-canvas-wrap.tall { height: 180px; }
+    .analytics-text h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem; font-weight: 700;
+      line-height: 1.3; margin-bottom: 1.2rem;
+    }
+    .analytics-text h2 span { color: var(--cyan); text-shadow: var(--glow-cyan); }
+    .analytics-text p {
+      color: var(--gray); font-size: 1rem; line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+    .analytics-list { list-style: none; }
+    .analytics-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-bottom: 0.8rem;
+      color: var(--gray); font-size: 0.95rem;
+    }
+    .analytics-list li::before {
+      content: '▶';
+      color: var(--cyan);
+      font-size: 0.7rem;
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+    .analytics-list li strong { color: var(--white); }
+
+    /* ===== GAUGE BARS ===== */
+    .gauges { padding: 0 5% 90px; }
+    .gauges-inner {
+      max-width: 1100px; margin: 0 auto;
+    }
+    .gauge-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .gauge-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border-cyan);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .gauge-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 0.8rem;
+    }
+    .gauge-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem; font-weight: 600;
+      color: var(--white);
+    }
+    .gauge-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      color: var(--cyan);
+    }
+    .gauge-track {
+      height: 8px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .gauge-fill {
+      height: 100%;
+      border-radius: 4px;
+      position: relative;
+      transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 0;
+    }
+    .gauge-fill.cyan {
+      background: linear-gradient(90deg, var(--cyan2), var(--cyan));
+      box-shadow: 0 0 10px var(--cyan);
+    }
+    .gauge-fill.pink {
+      background: linear-gradient(90deg, var(--pink2), var(--pink));
+      box-shadow: 0 0 10px var(--pink);
+    }
+    .gauge-fill.blue {
+      background: linear-gradient(90deg, #3B82F6, #60A5FA);
+      box-shadow: 0 0 10px #3B82F6;
+    }
+    .gauge-fill.green {
+      background: linear-gradient(90deg, #10B981, #34D399);
+      box-shadow: 0 0 10px #10B981;
+    }
+    .gauge-fill::after {
+      content: '';
+      position: absolute; right: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: inherit;
+      box-shadow: inherit;
+    }
+
+    /* ===== PRICING ===== */
+    .pricing { padding: 90px 5%; }
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem; max-width: 1000px; margin: 0 auto;
+      align-items: start;
+    }
+    .pricing-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-cyan);
+      border-radius: 16px;
+      padding: 2rem;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.4s;
+    }
+    .pricing-card:hover {
+      transform: translateY(-6px);
+    }
+    .pricing-card.selected {
+      border-color: var(--cyan);
+      box-shadow: 0 0 30px rgba(0,212,255,0.5), 0 0 60px rgba(0,212,255,0.2), inset 0 0 30px rgba(0,212,255,0.05);
+    }
+    .pricing-card.featured {
+      border-color: var(--pink);
+      background: rgba(11, 31, 58, 0.95);
+      transform: scale(1.03);
+    }
+    .pricing-card.featured.selected {
+      border-color: var(--pink);
+      box-shadow: 0 0 30px rgba(255,0,255,0.6), 0 0 60px rgba(255,0,255,0.3), inset 0 0 30px rgba(255,0,255,0.05);
+    }
+    .pricing-card.featured:hover { transform: scale(1.03) translateY(-6px); }
+    .plan-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      padding: 4px 16px;
+      background: linear-gradient(135deg, var(--pink2), var(--pink));
+      border-radius: 20px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      box-shadow: var(--glow-pink);
+    }
+    .plan-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.3rem;
+      text-align: center;
+    }
+    .plan-tagline {
+      font-size: 0.82rem; color: var(--gray);
+      text-align: center; margin-bottom: 1.5rem;
+    }
+    .plan-price {
+      text-align: center; margin-bottom: 1.5rem;
+    }
+    .plan-price .currency {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; color: var(--gray);
+      vertical-align: top; margin-top: 8px; display: inline-block;
+    }
+    .plan-price .amount {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem; font-weight: 700;
+      color: var(--white);
+    }
+    .plan-price .period {
+      font-size: 0.8rem; color: var(--gray);
+      display: block; margin-top: 2px;
+    }
+    .plan-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-cyan), transparent);
+      margin: 1.2rem 0;
+    }
+    .plan-features { list-style: none; margin-bottom: 1.8rem; }
+    .plan-features li {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 0.5rem 0;
+      font-size: 0.9rem; color: var(--gray);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .plan-features li:last-child { border-bottom: none; }
+    .plan-features li .check {
+      color: var(--cyan); font-size: 0.85rem; margin-top: 2px; flex-shrink: 0;
+    }
+    .plan-features li .check.pink { color: var(--pink); }
+    .plan-features li strong { color: var(--white); }
+    .plan-btn {
+      width: 100%; padding: 12px;
+      border-radius: 8px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+    }
+    .plan-btn.cyan-btn {
+      background: linear-gradient(135deg, var(--cyan2), var(--cyan));
+      color: var(--navy);
+      box-shadow: var(--glow-cyan);
+    }
+    .plan-btn.cyan-btn:hover {
+      box-shadow: 0 0 30px rgba(0,212,255,0.8);
+      transform: translateY(-2px);
+    }
+    .plan-btn.pink-btn {
+      background: linear-gradient(135deg, var(--pink2), var(--pink));
+      color: var(--white);
+      box-shadow: var(--glow-pink);
+    }
+    .plan-btn.pink-btn:hover {
+      box-shadow: 0 0 30px rgba(255,0,255,0.8);
+      transform: translateY(-2px);
+    }
+    .plan-btn.outline-btn {
+      background: transparent;
+      color: var(--cyan);
+      border: 1.5px solid var(--cyan);
+    }
+    .plan-btn.outline-btn:hover {
+      background: rgba(0,212,255,0.1);
+      box-shadow: var(--glow-cyan);
+    }
+
+    /* ===== ENTERPRISE ===== */
+    .enterprise-card {
+      max-width: 1000px; margin: 2rem auto 0;
+      background: linear-gradient(135deg, rgba(0,212,255,0.05), rgba(255,0,255,0.05));
+      border: 1px solid var(--border-cyan);
+      border-radius: 16px;
+      padding: 2rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+    }
+    .enterprise-info h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem; font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .enterprise-info p { color: var(--gray); font-size: 0.95rem; }
+    .enterprise-info p span { color: var(--cyan); }
+
+    /* ===== TESTIMONIALS ===== */
+    .testimonials { padding: 90px 5%; }
+    .testimonials-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+    }
+    .testimonial-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-cyan);
+      border-radius: 12px;
+      padding: 1.8rem;
+      transition: all 0.3s;
+    }
+    .testimonial-card:hover {
+      border-color: var(--cyan);
+      box-shadow: var(--glow-cyan);
+      transform: translateY(-4px);
+    }
+    .testimonial-stars {
+      color: var(--cyan); font-size: 0.9rem;
+      margin-bottom: 1rem;
+      text-shadow: var(--glow-cyan);
+    }
+    .testimonial-text {
+      color: var(--gray); font-size: 0.92rem;
+      line-height: 1.7; margin-bottom: 1.2rem;
+      font-style: italic;
+    }
+    .testimonial-author {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .author-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--cyan), var(--pink));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem; font-weight: 700;
+      color: var(--navy);
+      flex-shrink: 0;
+    }
+    .author-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--white);
+    }
+    .author-role { font-size: 0.78rem; color: var(--gray); }
+
+    /* ===== HOW IT WORKS ===== */
+    .how-it-works { padding: 90px 5%; }
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+      position: relative;
+    }
+    .steps-grid::before {
+      content: '';
+      position: absolute; top: 40px; left: 12%; right: 12%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--pink), var(--cyan), transparent);
+    }
+    .step-card {
+      text-align: center; padding: 1.5rem 1rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border-cyan);
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+    .step-card:hover {
+      border-color: var(--cyan);
+      box-shadow: var(--glow-cyan);
+    }
+    .step-number {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, var(--cyan), var(--cyan2));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--navy);
+      margin: 0 auto 1.2rem;
+      box-shadow: var(--glow-cyan);
+    }
+    .step-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--white); margin-bottom: 0.5rem;
+    }
+    .step-desc { color: var(--gray); font-size: 0.85rem; line-height: 1.5; }
+
+    /* ===== FAQ ===== */
+    .faq { padding: 90px 5%; }
+    .faq-list { max-width: 750px; margin: 0 auto; }
+    .faq-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border-cyan);
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .faq-item:hover { border-color: var(--cyan); }
+    .faq-question {
+      padding: 1.2rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      color: var(--white);
+      transition: color 0.3s;
+    }
+    .faq-question:hover { color: var(--cyan); }
+    .faq-icon {
+      font-size: 1.2rem; color: var(--cyan);
+      transition: transform 0.3s;
+      flex-shrink: 0;
+    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s;
+      padding: 0 1.5rem;
+    }
+    .faq-item.open .faq-answer {
+      max-height: 300px;
+      padding: 0 1.5rem 1.2rem;
+    }
+    .faq-answer p { color: var(--gray); font-size: 0.92rem; line-height: 1.7; }
+
+    /* ===== CTA FINAL ===== */
+    .cta-final {
+      padding: 100px 5%;
+      text-align: center;
+      position: relative;
+    }
+    .cta-final::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at center, rgba(0,212,255,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-final h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 3rem);
+      font-weight: 700; margin-bottom: 1rem;
+    }
+    .cta-final h2 span { color: var(--cyan); text-shadow: var(--glow-cyan); }
+    .cta-final p {
+      color: var(--gray); font-size: 1.1rem;
+      max-width: 550px; margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+    .cta-actions {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      padding: 60px 5% 30px;
+      border-top: 1px solid var(--border-cyan);
+      background: rgba(6,13,26,0.95);
+    }
+    .footer-top {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem; margin-bottom: 3rem;
+    }
+    .footer-brand .logo { margin-bottom: 1rem; }
+    .footer-brand p { color: var(--gray); font-size: 0.88rem; line-height: 1.6; }
+    .footer-col h4 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.85rem; font-weight: 700;
+      color: var(--cyan); letter-spacing: 0.15em;
+      text-transform: uppercase; margin-bottom: 1rem;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 0.5rem; }
+    .footer-col ul li a {
+      color: var(--gray); text-decoration: none;
+      font-size: 0.88rem; transition: color 0.3s;
+    }
+    .footer-col ul li a:hover { color: var(--cyan); }
+    .footer-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .footer-bottom p { color: var(--gray); font-size: 0.82rem; }
+    .footer-bottom p span { color: var(--cyan); }
+    .social-links { display: flex; gap: 1rem; }
+    .social-link {
+      width: 36px; height: 36px;
+      background: rgba(0,212,255,0.1);
+      border: 1px solid var(--border-cyan);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gray); text-decoration: none;
+      font-size: 0.9rem; transition: all 0.3s;
+    }
+    .social-link:hover {
+      background: rgba(0,212,255,0.2);
+      color: var(--cyan);
+      border-color: var(--cyan);
+      box-shadow: var(--glow-cyan);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .hero { flex-direction: column; text-align: center; padding-top: 120px; }
+      .hero-content { max-width: 100%; }
+      .hero-visual { margin-top: 3rem; justify-content: center; }
+      .hero-actions { justify-content: center; }
+      .hero-stats { justify-content: center; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .analytics-inner { grid-template-columns: 1fr; }
+      .gauge-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 420px; }
+      .pricing-card.featured { transform: scale(1); }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: repeat(2, 1fr); }
+      .steps-grid::before { display: none; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .metrics-grid { grid-template-columns: 1fr 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
+      .enterprise-card { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- GRID BACKGROUND -->
+<div class="grid-bg"></div>
+
+<!-- PARTICLES -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+  <a href="#" class="logo">
+    <div class="logo-icon">⚙</div>
+    <span>TOOLZ</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Recursos</a>
+    <a href="#analytics">Analytics</a>
+    <a href="#pricing">Planos</a>
+    <a href="#faq">FAQ</a>
+    <a href="#pricing" class="nav-cta">Começar Agora</a>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="home">
+  <div class="hero-bg-glow"></div>
+  <div class="hero-bg-glow2"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      IA de Automação Empresarial
+    </div>
+    <h1 class="hero-title">
+      <span class="line1">SUA EMPRESA</span>
+      <span class="line2">NO PILOTO</span>
+      <span class="line3">AUTOMÁTICO.</span>
+    </h1>
+    <p class="hero-subtitle">
+      Automatize processos, <strong>multiplique leads</strong> e faça suas vendas decolarem com a plataforma de IA mais avançada do mercado. <strong>Sem complexidade. Sem desperdício.</strong>
+    </p>
+    <div class="hero-actions">
+      <a href="#pricing" class="btn-primary">
+        ⚡ Ativar Agora
+      </a>
+      <a href="#features" class="btn-secondary">
+        ▶ Ver Demonstração
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="number">+3.200</span>
+        <span class="label">Empresas Ativas</span>
+      </div>
+      <div class="hero-stat">
+        <span class="number">98.7%</span>
+        <span class="label">Uptime Garantido</span>
+      </div>
+      <div class="hero-stat">
+        <span class="number">4.9★</span>
+        <span class="label">Avaliação Média</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="dashboard-wrapper">
+      <div class="dashboard-glow"></div>
+      <img src="dashboard.png" alt="TOOLZ AI Command Center Dashboard" />
+    </div>
+  </div>
+</section>
+
+<!-- ===== METRICS STRIP ===== -->
+<div class="metrics-strip reveal">
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-icon">🤖</div>
+      <span class="metric-number" data-target="18247">0</span>
+      <span class="metric-label">Tarefas Automatizadas</span>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon">⏱</div>
+      <span class="metric-number" data-target="3456">0</span>
+      <span class="metric-label">Horas Economizadas</span>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon">📈</div>
+      <span class="metric-number" data-target="94" data-suffix="%">0</span>
+      <span class="metric-label">Taxa de Conversão</span>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon">💰</div>
+      <span class="metric-number" data-prefix="R$" data-target="2450000">0</span>
+      <span class="metric-label">Receita Gerada</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FEATURES ===== -->
+<section class="features" id="features">
+  <div class="section-header reveal">
+    <div class="section-tag">Recursos</div>
+    <h2 class="section-title">Tudo que você precisa para <span class="highlight">escalar</span></h2>
+    <p class="section-desc">Uma plataforma completa com IA integrada para automatizar cada etapa do seu negócio.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon">🤖</div>
+      <div class="feature-title">Automação com IA</div>
+      <p class="feature-desc">Crie fluxos inteligentes que aprendem e se adaptam ao comportamento dos seus clientes automaticamente.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Analytics em Tempo Real</div>
+      <p class="feature-desc">Dashboards completos com métricas de performance, conversão e ROI atualizadas em tempo real.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">💬</div>
+      <div class="feature-title">Chatbot Inteligente</div>
+      <p class="feature-desc">Atendimento 24/7 com IA conversacional que qualifica leads e fecha vendas enquanto você dorme.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">🔗</div>
+      <div class="feature-title">Integrações Nativas</div>
+      <p class="feature-desc">Conecte com +200 ferramentas: CRM, e-mail, WhatsApp, redes sociais e muito mais.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-title">Geração de Leads</div>
+      <p class="feature-desc">Captura, qualifica e nutre leads automaticamente com sequências personalizadas de alta conversão.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">🛡</div>
+      <div class="feature-title">Segurança Avançada</div>
+      <p class="feature-desc">Criptografia de ponta a ponta, conformidade com LGPD e backups automáticos diários.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ANALYTICS SECTION ===== -->
+<section class="analytics" id="analytics">
+  <div class="analytics-inner">
+    <div class="analytics-charts reveal">
+      <div class="chart-card">
+        <div class="chart-label">Distribuição de Leads</div>
+        <div class="chart-canvas-wrap">
+          <canvas id="pieChart1"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-label">Taxa de Conversão</div>
+        <div class="chart-canvas-wrap">
+          <canvas id="pieChart2"></canvas>
+        </div>
+      </div>
+      <div class="chart-card wide">
+        <div class="chart-label">Crescimento Mensal de Receita</div>
+        <div class="chart-canvas-wrap tall">
+          <canvas id="barChart1"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="analytics-text reveal">
+      <h2>Dados que <span>provam</span> resultados reais</h2>
+      <p>Nossos clientes veem crescimento mensurável desde o primeiro mês. A TOOLZ transforma dados brutos em decisões inteligentes que impulsionam seu negócio.</p>
+      <ul class="analytics-list">
+        <li><strong>+340%</strong> de aumento médio na geração de leads qualificados</li>
+        <li><strong>Redução de 78%</strong> no tempo gasto em tarefas repetitivas</li>
+        <li><strong>ROI de 12x</strong> comprovado em menos de 90 dias</li>
+        <li><strong>Integração em menos de 24h</strong> com suporte dedicado</li>
+        <li><strong>Relatórios automáticos</strong> entregues no seu e-mail toda semana</li>
+      </ul>
+      <a href="#pricing" class="btn-primary" style="margin-top:1rem;">Ver Planos →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== GAUGE BARS ===== -->
+<div class="gauges reveal">
+  <div class="gauges-inner">
+    <div class="section-header">
+      <div class="section-tag">Performance</div>
+      <h2 class="section-title">Indicadores de <span class="highlight">Eficiência</span></h2>
+    </div>
+    <div class="gauge-grid">
+      <div class="gauge-item">
+        <div class="gauge-header">
+          <span class="gauge-name">Automação de Processos</span>
+          <span class="gauge-value">94%</span>
+        </div>
+        <div class="gauge-track">
+          <div class="gauge-fill cyan" data-width="94"></div>
+        </div>
+      </div>
+      <div class="gauge-item">
+        <div class="gauge-header">
+          <span class="gauge-name">Qualificação de Leads</span>
+          <span class="gauge-value">89%</span>
+        </div>
+        <div class="gauge-track">
+          <div class="gauge-fill pink" data-width="89"></div>
+        </div>
+      </div>
+      <div class="gauge-item">
+        <div class="gauge-header">
+          <span class="gauge-name">Satisfação do Cliente</span>
+          <span class="gauge-value">97%</span>
+        </div>
+        <div class="gauge-track">
+          <div class="gauge-fill green" data-width="97"></div>
+        </div>
+      </div>
+      <div class="gauge-item">
+        <div class="gauge-header">
+          <span class="gauge-name">Uptime da Plataforma</span>
+          <span class="gauge-value">99.9%</span>
+        </div>
+        <div class="gauge-track">
+          <div class="gauge-fill blue" data-width="99"></div>
+        </div>
+      </div>
+      <div class="gauge-item">
+        <div class="gauge-header">
+          <span class="gauge-name">Velocidade de Resposta IA</span>
+          <span class="gauge-value">92%</span>
+        </div>
+        <div class="gauge-track">
+          <div class="gauge-fill cyan" data-width="92"></div>
+        </div>
+      </div>
+      <div class="gauge-item">
+        <div class="gauge-header">
+          <span class="gauge-name">Taxa de Retenção</span>
+          <span class="gauge-value">96%</span>
+        </div>
+        <div class="gauge-track">
+          <div class="gauge-fill pink" data-width="96"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="how-it-works" id="how">
+  <div class="section-header reveal">
+    <div class="section-tag">Processo</div>
+    <h2 class="section-title">Como a <span class="highlight">TOOLZ</span> funciona</h2>
+    <p class="section-desc">Em 4 passos simples, sua empresa entra no piloto automático.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card reveal">
+      <div class="step-number">01</div>
+      <div class="step-title">Conecte suas ferramentas</div>
+      <p class="step-desc">Integre em minutos com seus sistemas existentes: CRM, e-mail, WhatsApp e muito mais.</p>
+    </div>
+    <div class="step-card reveal">
+      <div class="step-number">02</div>
+      <div class="step-title">Configure os fluxos</div>
+      <p class="step-desc">Use nosso editor visual drag-and-drop para criar automações poderosas sem código.</p>
+    </div>
+    <div class="step-card reveal">
+      <div class="step-number">03</div>
+      <div class="step-title">A IA aprende e otimiza</div>
+      <p class="step-desc">Nossa IA analisa padrões e otimiza automaticamente cada fluxo para maximizar resultados.</p>
+    </div>
+    <div class="step-card reveal">
+      <div class="step-number">04</div>
+      <div class="step-title">Veja os resultados</div>
+      <p class="step-desc">Acompanhe em tempo real o crescimento de leads, vendas e eficiência operacional.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRICING ===== -->
+<section class="pricing" id="pricing">
+  <div class="section-header reveal">
+    <div class="section-tag">Planos</div>
+    <h2 class="section-title">Escolha seu plano de <span class="highlight">decolagem</span></h2>
+    <p class="section-desc">Planos flexíveis para cada estágio do seu negócio. Sem taxas ocultas.</p>
+  </div>
+  <div class="pricing-grid reveal">
+
+    <!-- STARTER -->
+    <div class="pricing-card" onclick="selectPlan(this)">
+      <div class="plan-name">Starter</div>
+      <div class="plan-tagline">Para quem está começando</div>
+      <div class="plan-price">
+        <span class="currency">R$</span>
+        <span class="amount">497</span>
+        <span class="period">/mês</span>
+      </div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> Até 3 automações ativas</li>
+        <li><span class="check">✓</span> <strong>1.000 leads/mês</strong></li>
+        <li><span class="check">✓</span> Chatbot básico com IA</li>
+        <li><span class="check">✓</span> Integrações com 20 ferramentas</li>
+        <li><span class="check">✓</span> Dashboard de analytics</li>
+        <li><span class="check">✓</span> Suporte por e-mail</li>
+        <li><span class="check">✓</span> Relatórios mensais</li>
+      </ul>
+      <button class="plan-btn outline-btn">Começar com Starter</button>
+    </div>
+
+    <!-- GROWTH (FEATURED) -->
+    <div class="pricing-card featured selected" onclick="selectPlan(this)">
+      <div class="plan-badge">⭐ MAIS RECOMENDADO</div>
+      <div class="plan-name">Growth</div>
+      <div class="plan-tagline">Para empresas em expansão</div>
+      <div class="plan-price">
+        <span class="currency">R$</span>
+        <span class="amount">997</span>
+        <span class="period">/mês</span>
+      </div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li><span class="check pink">✓</span> Automações <strong>ilimitadas</strong></li>
+        <li><span class="check pink">✓</span> <strong>10.000 leads/mês</strong></li>
+        <li><span class="check pink">✓</span> Chatbot avançado com IA GPT-4</li>
+        <li><span class="check pink">✓</span> Integrações com +100 ferramentas</li>
+        <li><span class="check pink">✓</span> Analytics avançado + BI</li>
+        <li><span class="check pink">✓</span> Suporte prioritário 24/7</li>
+        <li><span class="check pink">✓</span> Relatórios semanais automáticos</li>
+        <li><span class="check pink">✓</span> A/B Testing automático</li>
+        <li><span class="check pink">✓</span> Onboarding dedicado</li>
+      </ul>
+      <button class="plan-btn pink-btn">Ativar Growth Agora</button>
+    </div>
+
+    <!-- SCALE -->
+    <div class="pricing-card" onclick="selectPlan(this)">
+      <div class="plan-name">Scale</div>
+      <div class="plan-tagline">Para grandes operações</div>
+      <div class="plan-price">
+        <span class="currency">R$</span>
+        <span class="amount">1.997</span>
+        <span class="period">/mês</span>
+      </div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> Tudo do Growth</li>
+        <li><span class="check">✓</span> <strong>Leads ilimitados</strong></li>
+        <li><span class="check">✓</span> IA personalizada para seu negócio</li>
+        <li><span class="check">✓</span> Integrações com +200 ferramentas</li>
+        <li><span class="check">✓</span> White-label disponível</li>
+        <li><span class="check">✓</span> Gerente de conta dedicado</li>
+        <li><span class="check">✓</span> SLA de 99.9% garantido</li>
+        <li><span class="check">✓</span> Treinamento da equipe</li>
+      </ul>
+      <button class="plan-btn cyan-btn">Ativar Scale Agora</button>
+    </div>
+
+  </div>
+
+  <!-- ENTERPRISE -->
+  <div class="enterprise-card reveal">
+    <div class="enterprise-info">
+      <h3>🏢 Enterprise</h3>
+      <p>Para grandes corporações com necessidades específicas. <span>Solução 100% personalizada</span>, infraestrutura dedicada e suporte VIP.</p>
+    </div>
+    <a href="#" class="btn-secondary">Falar com Especialista →</a>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section class="testimonials" id="testimonials">
+  <div class="section-header reveal">
+    <div class="section-tag">Depoimentos</div>
+    <h2 class="section-title">O que nossos clientes <span class="highlight">dizem</span></h2>
+    <p class="section-desc">Mais de 3.200 empresas já transformaram seus resultados com a TOOLZ.</p>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card reveal">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"A TOOLZ triplicou nossa geração de leads em 60 dias. O chatbot com IA qualifica os prospects automaticamente e nossa equipe de vendas foca só em fechar negócios."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">RC</div>
+        <div>
+          <div class="author-name">Rafael Costa</div>
+          <div class="author-role">CEO — TechVentures Brasil</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"Economizamos 40 horas semanais em tarefas manuais. O ROI foi de 15x em apenas 3 meses. Não consigo imaginar minha operação sem a TOOLZ hoje."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">AM</div>
+        <div>
+          <div class="author-name">Ana Martins</div>
+          <div class="author-role">Diretora de Operações — GrowthLab</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"Implementamos em menos de 24h. O suporte é excepcional e a plataforma é intuitiva. Nossas vendas cresceram 280% no primeiro trimestre."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">PS</div>
+        <div>
+          <div class="author-name">Pedro Silva</div>
+          <div class="author-role">Fundador — E-commerce Plus</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="faq" id="faq">
+  <div class="section-header reveal">
+    <div class="section-tag">FAQ</div>
+    <h2 class="section-title">Perguntas <span class="highlight">frequentes</span></h2>
+  </div>
+  <div class="faq-list reveal">
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        Preciso saber programar para usar a TOOLZ?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Não! A TOOLZ foi desenvolvida para ser 100% visual e intuitiva. Nosso editor drag-and-drop permite criar automações poderosas sem nenhuma linha de código. Qualquer pessoa da sua equipe consegue operar.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        Em quanto tempo vejo resultados?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>A maioria dos nossos clientes começa a ver resultados nas primeiras 72 horas após a ativação. Em 30 dias, você já terá dados concretos de ROI. Nosso onboarding dedicado garante uma implementação rápida e eficiente.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        Posso cancelar a qualquer momento?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Sim, sem burocracia. Você pode cancelar sua assinatura a qualquer momento diretamente pelo painel, sem multas ou taxas de cancelamento. Acreditamos tanto nos nossos resultados que não precisamos prender clientes.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        A TOOLZ é compatível com meu CRM atual?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Com certeza! Temos integrações nativas com os principais CRMs do mercado: Salesforce, HubSpot, RD Station, Pipedrive, e mais de 200 outras ferramentas. Se usar algo específico, nossa API aberta permite integrar qualquer sistema.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question" onclick="toggleFaq(this)">
+        Meus dados estão seguros?
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer">
+        <p>Segurança é nossa prioridade máxima. Utilizamos criptografia AES-256, servidores no Brasil em conformidade com a LGPD, backups automáticos diários e autenticação de dois fatores. Seus dados nunca são compartilhados com terceiros.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA FINAL ===== -->
+<section class="cta-final">
+  <div class="reveal">
+    <h2>Pronto para colocar sua empresa no <span>piloto automático?</span></h2>
+    <p>Junte-se a mais de 3.200 empresas que já estão crescendo com a TOOLZ. Comece hoje mesmo.</p>
+    <div class="cta-actions">
+      <a href="#pricing" class="btn-primary">⚡ Ativar Minha Conta Agora</a>
+      <a href="#" class="btn-secondary">📞 Falar com Especialista</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="logo">
+        <div class="logo-icon">⚙</div>
+        <span>TOOLZ</span>
+      </a>
+      <p style="margin-top:1rem;">A plataforma de automação com IA que coloca sua empresa no piloto automático. Mais leads, mais vendas, menos trabalho manual.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Produto</h4>
+      <ul>
+        <li><a href="#">Recursos</a></li>
+        <li><a href="#">Integrações</a></li>
+        <li><a href="#">Preços</a></li>
+        <li><a href="#">Changelog</a></li>
+        <li><a href="#">API</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Empresa</h4>
+      <ul>
+        <li><a href="#">Sobre nós</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Carreiras</a></li>
+        <li><a href="#">Parceiros</a></li>
+        <li><a href="#">Imprensa</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Suporte</h4>
+      <ul>
+        <li><a href="#">Central de Ajuda</a></li>
+        <li><a href="#">Documentação</a></li>
+        <li><a href="#">Status</a></li>
+        <li><a href="#">Contato</a></li>
+        <li><a href="#">LGPD</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 <span>TOOLZ</span>. Todos os direitos reservados. CNPJ: 00.000.000/0001-00</p>
+    <div class="social-links">
+      <a href="#" class="social-link">in</a>
+      <a href="#" class="social-link">tw</a>
+      <a href="#" class="social-link">ig</a>
+      <a href="#" class="social-link">yt</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== SCRIPTS ===== -->
+<script>
+// ===== PARTICLES =====
+(function() {
+  const canvas = document.getElementById('particles-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let W, H;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function Particle() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.vx = (Math.random() - 0.5) * 0.4;
+    this.vy = (Math.random() - 0.5) * 0.4;
+    this.r = Math.random() * 1.5 + 0.5;
+    this.alpha = Math.random() * 0.6 + 0.2;
+    this.color = Math.random() > 0.5 ? '0,212,255' : '255,0,255';
+  }
+
+  for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.color},${p.alpha})`;
+      ctx.fill();
+    });
+    // Draw connections
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(0,212,255,${0.12 * (1 - dist/120)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ===== SCROLL REVEAL =====
+const revealEls = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      // Trigger gauge animations
+      e.target.querySelectorAll('.gauge-fill').forEach(g => {
+        g.style.width = g.dataset.width + '%';
+      });
+      // Trigger counter animations
+      e.target.querySelectorAll('[data-target]').forEach(el => {
+        animateCounter(el);
+      });
+    }
+  });
+}, { threshold: 0.15 });
+revealEls.forEach(el => revealObserver.observe(el));
+
+// Also observe gauges outside reveal
+document.querySelectorAll('.gauge-fill').forEach(g => {
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      setTimeout(() => { g.style.width = g.dataset.width + '%'; }, 200);
+      obs.disconnect();
+    }
+  }, { threshold: 0.3 });
+  obs.observe(g);
+});
+
+// ===== COUNTER ANIMATION =====
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target);
+  const prefix = el.dataset.prefix || '';
+  const suffix = el.dataset.suffix || '';
+  const duration = 2000;
+  const step = target / (duration / 16);
+  let current = 0;
+  const timer = setInterval(() => {
+    current += step;
+    if (current >= target) { current = target; clearInterval(timer); }
+    const val = target >= 1000000
+      ? (current/1000000).toFixed(2) + 'M'
+      : target >= 1000
+      ? Math.floor(current).toLocaleString('pt-BR')
+      : Math.floor(current);
+    el.textContent = prefix + val + suffix;
+  }, 16);
+}
+
+// ===== PRICING SELECTION =====
+function selectPlan(card) {
+  document.querySelectorAll('.pricing-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+}
+
+// ===== FAQ TOGGLE =====
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// ===== CHARTS =====
+Chart.defaults.color = '#94A3B8';
+Chart.defaults.borderColor = 'rgba(0,212,255,0.1)';
+
+// Pie Chart 1 — Distribuição de Leads
+new Chart(document.getElementById('pieChart1'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Orgânico', 'Pago', 'Referência', 'Social'],
+    datasets: [{
+      data: [35, 28, 19, 18],
+      backgroundColor: ['#00D4FF', '#FF00FF', '#06B6D4', '#CC00FF'],
+      borderColor: '#060D1A',
+      borderWidth: 3,
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 8, boxWidth: 10 } }
+    }
+  }
+});
+
+// Pie Chart 2 — Taxa de Conversão
+new Chart(document.getElementById('pieChart2'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Convertidos', 'Em Nutrição', 'Frios'],
+    datasets: [{
+      data: [47, 33, 20],
+      backgroundColor: ['#00D4FF', '#06B6D4', '#1E40AF'],
+      borderColor: '#060D1A',
+      borderWidth: 3,
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 8, boxWidth: 10 } }
+    }
+  }
+});
+
+// Bar Chart — Crescimento Mensal
+new Chart(document.getElementById('barChart1'), {
+  type: 'bar',
+  data: {
+    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+    datasets: [
+      {
+        label: 'Leads',
+        data: [420, 580, 750, 920, 1100, 1380, 1620, 1890, 2100, 2450, 2800, 3200],
+        backgroundColor: 'rgba(0,212,255,0.7)',
+        borderColor: '#00D4FF',
+        borderWidth: 1,
+        borderRadius: 4
+      },
+      {
+        label: 'Vendas',
+        data: [180, 240, 320, 410, 490, 620, 740, 870, 980, 1150, 1320, 1580],
+        backgroundColor: 'rgba(255,0,255,0.6)',
+        borderColor: '#FF00FF',
+        borderWidth: 1,
+        borderRadius: 4
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { font: { size: 10 }, padding: 10, boxWidth: 12 } }
+    },
+    scales: {
+      x: { grid: { color: 'rgba(0,212,255,0.06)' }, ticks: { font: { size: 9 } } },
+      y: { grid: { color: 'rgba(0,212,255,0.06)' }, ticks: { font: { size: 9 } } }
+    }
+  }
+});
+
+// ===== NAVBAR SCROLL EFFECT =====
+window.addEventListener('scroll', () => {
+  const navbar = document.querySelector('.navbar');
+  if (window.scrollY > 50) {
+    navbar.style.background = 'rgba(6,13,26,0.98)';
+  } else {
+    navbar.style.background = 'rgba(6,13,26,0.92)';
+  }
+});
+</script>
+
+</body>
+</html>
